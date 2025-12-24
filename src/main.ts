@@ -1,14 +1,21 @@
-import { Drawer } from "./drawer";
+import { LineDrawer } from "./LineDrawer";
 import { Color } from "./math/color";
 import { Point } from "./math/point";
-const drawer = new Drawer();
+import { Canvas } from "./canvas";
+import { TriangleDrawer } from "./TriangleDrawer";
 
-let p0, p1;
+const canvas = new Canvas();
+const triangleDrawer = new TriangleDrawer(canvas);
+
+let p0, p1, p2;
 p0 = new Point(-50, -200);
 p1 = new Point(60, 240);
-drawer.drawLine(p0, p1, new Color(0, 0, 0));
+p2 = new Point(-200, -100);
 
-//  (−200,−100)−(240,120),
-p0 = new Point(-200, -100);
-p1 = new Point(240, 120);
-drawer.drawLine(p0, p1, new Color(0, 0, 0));
+// triangleDrawer.drawWireframeTriangle(p0, p1, p2, new Color(255, 0, 0));
+triangleDrawer.drawFilledTriangle(
+  new Point(-200, -100, 0),
+  new Point(0, 200, 0),
+  new Point(200, -50, 0),
+  new Color(255, 0, 0)
+);
