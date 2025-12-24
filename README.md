@@ -11,6 +11,9 @@ Features
 - Simple canvas-based rasterization pipeline
 - Small, readable TypeScript codebase for learning and extension
 
+side note: After my experiment with my previous ray tracer project, 
+using Typescript is making my life way easier than before, Types are extremely important in these types of projects.
+
 Prerequisites
 
 - Node.js (14+) and npm
