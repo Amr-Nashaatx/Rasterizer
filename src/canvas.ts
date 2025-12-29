@@ -31,7 +31,12 @@ export class Canvas {
   }
 
   convertToScreenCoordinates(p: Point) {
-    return new Point(this.canvas.width / 2 + p.x, this.canvas.height / 2 - p.y);
+    const screenCoordinate = new Point(
+      this.canvas.width / 2 + p.x,
+      this.canvas.height / 2 - p.y
+    );
+    if (p.h !== -1) screenCoordinate.h = p.h;
+    return screenCoordinate;
   }
 
   canvasToViewPort(p: Point) {

@@ -2,11 +2,13 @@ import { Vector } from "./vector.js";
 
 export class Point {
   private w: number;
+  public h: number;
   constructor(public x = 0, public y = 0, public z = 0) {
     this.x = x;
     this.y = y;
     this.z = z;
     this.w = 1;
+    this.h = 1;
   }
   addVector(v: Vector) {
     return new Point(this.x + v.x, this.y + v.y, this.z + v.z);
