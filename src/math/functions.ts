@@ -1,3 +1,4 @@
+import { VIEWPORT_DISTANCE } from "../constants";
 import { Point } from "./point";
 
 export function interpolate(i0: number, d0: number, i1: number, d1: number) {
@@ -25,4 +26,12 @@ export function swapPoints(P0: Point, P1: Point) {
   P1.x = temp.x;
   P1.y = temp.y;
   P1.z = temp.z;
+}
+
+export function projectPoint(point: Point) {
+  const projX = (point.x * VIEWPORT_DISTANCE) / point.z;
+  const projY = (point.y * VIEWPORT_DISTANCE) / point.z;
+
+  const projPoint = new Point(projX, projY, point.z);
+  return projPoint;
 }

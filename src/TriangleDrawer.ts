@@ -25,9 +25,9 @@ export class TriangleDrawer {
     color: Color,
     enableShading: boolean
   ) {
-    let s0 = this.canvas.convertToScreenCoordinates(P0);
-    let s1 = this.canvas.convertToScreenCoordinates(P1);
-    let s2 = this.canvas.convertToScreenCoordinates(P2);
+    let s0 = this.canvas.viewportToCanvas(P0);
+    let s1 = this.canvas.viewportToCanvas(P1);
+    let s2 = this.canvas.viewportToCanvas(P2);
 
     let p0 = new Point(s0.x, s0.y, s0.z);
     let p1 = new Point(s1.x, s1.y, s1.z);

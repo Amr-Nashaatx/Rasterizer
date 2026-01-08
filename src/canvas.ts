@@ -30,21 +30,24 @@ export class Canvas {
     this.pixels = this.image.data; // RGBA array
   }
 
-  convertToScreenCoordinates(p: Point) {
-    const screenCoordinate = new Point(
-      this.canvas.width / 2 + p.x,
-      this.canvas.height / 2 - p.y
+  viewportToCanvas(p: Point) {
+    const canvasPoint = new Point(
+      p.x * (this.canvas.width / VIEWPORT_WIDTH) + this.canvas.width / 2,
+      -p.y * (this.canvas.height / VIEWPORT_HEIGHT) + this.canvas.height / 2,
+      p.z
     );
-    if (p.h !== -1) screenCoordinate.h = p.h;
-    return screenCoordinate;
+
+    if (p.h !== -1) canvasPoint.h = p.h;
+    return canvasPoint;
   }
 
   canvasToViewPort(p: Point) {
-    return new Vector(
+    const VpCoords = new Point(
       (p.x * VIEWPORT_WIDTH) / this.canvas.width,
       (p.y * VIEWPORT_HEIGHT) / this.canvas.height,
       VIEWPORT_DISTANCE
     );
+    return VpCoords;
   }
   updateCanvas() {
     this.ctx.putImageData(this.image, 0, 0);

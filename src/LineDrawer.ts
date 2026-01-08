@@ -9,8 +9,6 @@ export class LineDrawer {
     this.canvas = canvas;
   }
   private orderPoints(P0: Point, P1: Point, sample: "x" | "y") {
-    P0 = this.canvas.convertToScreenCoordinates(P0);
-    P1 = this.canvas.convertToScreenCoordinates(P1);
     let y0 = P0.y,
       x0 = P0.x;
     let y1 = P1.y,
@@ -47,9 +45,12 @@ export class LineDrawer {
   }
 
   drawLine(P0: Point, P1: Point, color: Color) {
-    const dx = Math.abs(P1.x - P0.x);
-    const dy = Math.abs(P1.y - P0.y);
-    if (dx > dy) this.drawLineSampleX(P0, P1, color);
-    else this.drawLineSampleY(P0, P1, color);
+    const Pvp0 = this.canvas.viewportToCanvas(P0);
+    const Pvp1 = this.canvas.viewportToCanvas(P1);
+    console.log(Pvp0, Pvp1);
+    const dx = Math.abs(Pvp1.x - Pvp0.x);
+    const dy = Math.abs(Pvp1.y - Pvp0.y);
+    if (dx > dy) this.drawLineSampleX(Pvp0, Pvp1, color);
+    else this.drawLineSampleY(Pvp0, Pvp1, color);
   }
 }
