@@ -3,7 +3,7 @@ import type { Color } from "./math/color";
 import { Point } from "./math/point";
 import { interpolate } from "./math/functions";
 
-export class LineDrawer {
+export class Line {
   private canvas: Canvas;
   constructor(canvas: Canvas) {
     this.canvas = canvas;
