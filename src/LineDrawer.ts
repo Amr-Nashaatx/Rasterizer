@@ -3,7 +3,7 @@ import type { Color } from "./math/color";
 import { Point } from "./math/point";
 import { interpolate } from "./math/functions";
 
-export class Line {
+export class LineDrawer {
   private canvas: Canvas;
   constructor(canvas: Canvas) {
     this.canvas = canvas;
@@ -47,7 +47,6 @@ export class Line {
   drawLine(P0: Point, P1: Point, color: Color) {
     const Pvp0 = this.canvas.viewportToCanvas(P0);
     const Pvp1 = this.canvas.viewportToCanvas(P1);
-    console.log(Pvp0, Pvp1);
     const dx = Math.abs(Pvp1.x - Pvp0.x);
     const dy = Math.abs(Pvp1.y - Pvp0.y);
     if (dx > dy) this.drawLineSampleX(Pvp0, Pvp1, color);

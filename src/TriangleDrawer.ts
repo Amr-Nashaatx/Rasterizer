@@ -1,15 +1,15 @@
 import { Canvas } from "./canvas";
-import { Line } from "./Line";
+import { LineDrawer } from "./LineDrawer";
 import type { Color } from "./math/color";
 import { interpolate, swapPoints } from "./math/functions";
 import { Point } from "./math/point";
 
-export class Triangle {
+export class TriangleDrawer {
   private canvas: Canvas;
-  private lineDrawer: Line;
+  private lineDrawer: LineDrawer;
   constructor(canvas: Canvas) {
     this.canvas = canvas;
-    this.lineDrawer = new Line(canvas);
+    this.lineDrawer = new LineDrawer(canvas);
   }
 
   drawWireframeTriangle(P0: Point, P1: Point, P2: Point, color: Color) {

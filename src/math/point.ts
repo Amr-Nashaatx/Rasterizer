@@ -1,7 +1,7 @@
 import { Vector } from "./vector.js";
 
 export class Point {
-  private w: number;
+  public w: number;
   public h: number;
   constructor(public x = 0, public y = 0, public z = 0) {
     this.x = x;
