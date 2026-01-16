@@ -1,11 +1,13 @@
-import { Canvas } from "./canvas";
 import { Vector } from "./math/vector";
 import { CubeModel } from "./CubeModel";
+import { Scene } from "./Scene";
 
-const canvas = new Canvas();
+const scene = new Scene();
 
-const object = new CubeModel(canvas);
-object.translate(new Vector(0, 0, 8));
-// object.rotate(Math.PI / 3, "X");
-object.scale(2, 2, 1);
-object.renderObject();
+scene.addObject(CubeModel);
+scene.moveSelected(new Vector(0, 0, 8));
+
+scene.moveCamera(new Vector(0, 0, -2));
+scene.rotateCamera(Math.PI / 3, "X");
+
+scene.renderScene();

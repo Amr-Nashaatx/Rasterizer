@@ -97,6 +97,9 @@ export class CubeModel {
       Matrix4.createScaleMatrix4(sx, sy, sz)
     );
   }
+  applyViewMatrix(view: Matrix4) {
+    this.transform = this.transform.multiply(view);
+  }
   renderObject() {
     const transformedAndProjected: Point[] = new Array(
       this.verticesList.length
