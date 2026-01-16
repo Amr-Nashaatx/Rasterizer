@@ -123,4 +123,24 @@ export class Matrix4 {
       1,
     ]);
   }
+  static embedRotation3WithTranslation(matrix3: Matrix3, v: Vector) {
+    return new Matrix4([
+      matrix3.m[0],
+      matrix3.m[1],
+      matrix3.m[2],
+      0,
+      matrix3.m[3],
+      matrix3.m[4],
+      matrix3.m[5],
+      0,
+      matrix3.m[6],
+      matrix3.m[7],
+      matrix3.m[8],
+      0,
+      v.x,
+      v.y,
+      v.z,
+      1,
+    ]);
+  }
 }
