@@ -3,6 +3,7 @@ import { LineDrawer } from "./LineDrawer";
 import type { Color } from "./math/color";
 import { interpolate, swapPoints } from "./math/functions";
 import { Point } from "./math/point";
+import type { Triangle } from "./math/Triangle";
 
 export class TriangleDrawer {
   private canvas: Canvas;
@@ -12,22 +13,16 @@ export class TriangleDrawer {
     this.lineDrawer = new LineDrawer(canvas);
   }
 
-  drawWireframeTriangle(P0: Point, P1: Point, P2: Point, color: Color) {
-    this.lineDrawer.drawLine(P0, P1, color);
-    this.lineDrawer.drawLine(P1, P2, color);
-    this.lineDrawer.drawLine(P2, P0, color);
+  drawWireframeTriangle(t: Triangle) {
+    this.lineDrawer.drawLine(t.v0, t.v1, t.color);
+    this.lineDrawer.drawLine(t.v1, t.v2, t.color);
+    this.lineDrawer.drawLine(t.v2, t.v0, t.color);
   }
 
-  drawFilledTriangle(
-    P0: Point,
-    P1: Point,
-    P2: Point,
-    color: Color,
-    enableShading: boolean
-  ) {
-    let s0 = this.canvas.viewportToCanvas(P0);
-    let s1 = this.canvas.viewportToCanvas(P1);
-    let s2 = this.canvas.viewportToCanvas(P2);
+  drawFilledTriangle(t: Triangle, enableShading: boolean) {
+    let s1 = this.canvas.viewportToCanvas(t.v1);
+    let s0 = this.canvas.viewportToCanvas(t.v0);
+    let s2 = this.canvas.viewportToCanvas(t.v2);
 
     let p0 = new Point(s0.x, s0.y, s0.z);
     let p1 = new Point(s1.x, s1.y, s1.z);
@@ -100,7 +95,7 @@ export class TriangleDrawer {
       for (let x = xStart; x < xEnd; x++) {
         const pixel = new Point(x, y);
         const h = hValuesOnX[x - xStart];
-        const shadedColor = color.scale(h);
+        const shadedColor = t.color.scale(h);
         this.canvas.putPixel(pixel, shadedColor);
       }
       this.canvas.updateCanvas();

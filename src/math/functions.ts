@@ -1,5 +1,7 @@
 import { VIEWPORT_DISTANCE } from "../constants";
+import type { Plane } from "./Plane";
 import { Point } from "./point";
+import { Vector } from "./vector";
 
 export function interpolate(i0: number, d0: number, i1: number, d1: number) {
   if (i0 === i1) return [d0];
@@ -35,3 +37,12 @@ export function projectPoint(point: Point) {
   const projPoint = new Point(projX, projY, point.z);
   return projPoint;
 }
+
+export function signedDistance(p: Plane, vertex: Point) {
+  const normal = p.normal;
+  const posVector = new Vector(vertex.x, vertex.y, vertex.z);
+
+  return posVector.dot(normal) + p.D;
+}
+
+// export function clipTriangle

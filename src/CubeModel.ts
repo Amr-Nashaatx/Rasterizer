@@ -5,13 +5,8 @@ import { Matrix4 } from "./math/Matrix4";
 import { Point } from "./math/point";
 import type { Vector } from "./math/vector";
 import { TriangleDrawer } from "./TriangleDrawer";
+import { Triangle } from "./math/Triangle";
 
-interface Triangle {
-  v1Index: number;
-  v2Index: number;
-  v3Index: number;
-  color: Color;
-}
 const cubeVertices = [
   // Front face (z = -1)
   new Point(-1, -1, -1), // 0
@@ -25,7 +20,7 @@ const cubeVertices = [
   new Point(1, 1, 1), // 6
   new Point(-1, 1, 1), // 7
 ];
-const trianglesList = [
+const trianglesData = [
   { v1Index: 0, v2Index: 1, v3Index: 2, color: new Color(255, 0, 0) },
   { v1Index: 0, v2Index: 2, v3Index: 3, color: new Color(255, 0, 0) },
 
@@ -48,27 +43,14 @@ const trianglesList = [
 export class CubeModel {
   private triangleDrawer: TriangleDrawer;
   private verticesList: Point[];
-  private trianglesList: Triangle[];
+  private trianglesData: typeof trianglesData;
   transform: Matrix4;
   constructor(private canvas: Canvas) {
     this.canvas = canvas;
     this.triangleDrawer = new TriangleDrawer(this.canvas);
     this.verticesList = cubeVertices;
-    this.trianglesList = trianglesList;
+    this.trianglesData = trianglesData;
     this.transform = Matrix4.identity();
-  }
-
-  private renderTriangleWireframe(
-    triangleVertices: Triangle,
-    projectedList: Point[]
-  ) {
-    const p1 = projectedList[triangleVertices.v1Index];
-    const p2 = projectedList[triangleVertices.v2Index];
-    const p3 = projectedList[triangleVertices.v3Index];
-
-    const color = triangleVertices.color;
-
-    this.triangleDrawer.drawWireframeTriangle(p1, p2, p3, color);
   }
 
   translate(v: Vector) {
@@ -111,8 +93,18 @@ export class CubeModel {
       const projectedVertex = projectPoint(transformedVertex);
       transformedAndProjected[i] = projectedVertex;
     }
-    for (let t of this.trianglesList) {
-      this.renderTriangleWireframe(t, transformedAndProjected);
+    const trianglesList = this.trianglesData.map((t) => {
+      const p1 = transformedAndProjected[t.v1Index];
+      const p2 = transformedAndProjected[t.v2Index];
+      const p3 = transformedAndProjected[t.v3Index];
+
+      const tri = new Triangle(p1, p2, p3);
+      tri.addColor(t.color);
+      return tri;
+    });
+
+    for (let t of trianglesList) {
+      this.triangleDrawer.drawWireframeTriangle(t);
     }
   }
 }
