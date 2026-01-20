@@ -1,6 +1,12 @@
+import { Point } from "./point";
+
 export class Vector {
   public w: number;
-  constructor(public x = 0, public y = 0, public z = 0) {
+  constructor(
+    public x = 0,
+    public y = 0,
+    public z = 0,
+  ) {
     this.x = x;
     this.y = y;
     this.z = z;
@@ -26,7 +32,7 @@ export class Vector {
     return new Vector(
       this.y * v.z - this.z * v.y,
       this.z * v.x - this.x * v.z,
-      this.x * v.y - this.y * v.x
+      this.x * v.y - this.y * v.x,
     );
   }
 
@@ -37,6 +43,9 @@ export class Vector {
   normalize() {
     const m = this.magnitude();
     return m === 0 ? new Vector(0, 0, 0) : this.scale(1 / m);
+  }
+  toPoint() {
+    return new Point(this.x, this.y, this.z);
   }
   rotateVectorAroundAxis(u: Vector, theta: number) {
     const axis = u.normalize();

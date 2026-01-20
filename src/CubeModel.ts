@@ -7,52 +7,42 @@ import type { Vector } from "./math/vector";
 import { TriangleDrawer } from "./TriangleDrawer";
 import { Triangle } from "./math/Triangle";
 
-const cubeVertices = [
-  // Front face (z = -1)
-  new Point(-1, -1, -1), // 0
-  new Point(1, -1, -1), // 1
-  new Point(1, 1, -1), // 2
-  new Point(-1, 1, -1), // 3
-
-  // Back face (z = 1)
-  new Point(-1, -1, 1), // 4
-  new Point(1, -1, 1), // 5
-  new Point(1, 1, 1), // 6
-  new Point(-1, 1, 1), // 7
-];
-const trianglesData = [
-  { v1Index: 0, v2Index: 1, v3Index: 2, color: new Color(255, 0, 0) },
-  { v1Index: 0, v2Index: 2, v3Index: 3, color: new Color(255, 0, 0) },
-
-  { v1Index: 4, v2Index: 0, v3Index: 3, color: new Color(0, 255, 0) },
-  { v1Index: 4, v2Index: 3, v3Index: 7, color: new Color(0, 255, 0) },
-
-  { v1Index: 5, v2Index: 4, v3Index: 7, color: new Color(0, 0, 255) },
-  { v1Index: 5, v2Index: 7, v3Index: 6, color: new Color(0, 0, 255) },
-
-  { v1Index: 1, v2Index: 5, v3Index: 6, color: new Color(255, 255, 0) },
-  { v1Index: 1, v2Index: 6, v3Index: 2, color: new Color(255, 255, 0) },
-
-  { v1Index: 4, v2Index: 5, v3Index: 1, color: new Color(128, 0, 128) },
-  { v1Index: 4, v2Index: 1, v3Index: 0, color: new Color(128, 0, 128) },
-
-  { v1Index: 2, v2Index: 6, v3Index: 7, color: new Color(0, 255, 255) },
-  { v1Index: 2, v2Index: 7, v3Index: 3, color: new Color(0, 255, 255) },
-];
-
+interface ModelData {
+  vertices: Point[];
+  triangles: {
+    v1Index: number;
+    v2Index: number;
+    v3Index: number;
+    color: Color;
+  }[];
+}
 export class CubeModel {
   private triangleDrawer: TriangleDrawer;
-  private verticesList: Point[];
-  private trianglesData: typeof trianglesData;
   transform: Matrix4;
-  constructor(private canvas: Canvas) {
-    this.canvas = canvas;
+  triangles: Triangle[];
+  constructor(
+    private canvas: Canvas,
+    data: ModelData | Triangle[],
+  ) {
     this.triangleDrawer = new TriangleDrawer(this.canvas);
-    this.verticesList = cubeVertices;
-    this.trianglesData = trianglesData;
     this.transform = Matrix4.identity();
+    if (Array.isArray(data)) {
+      this.triangles = data;
+    } else {
+      this.triangles = this.buildFromModelData(data);
+    }
   }
+  private buildFromModelData(data: ModelData): Triangle[] {
+    return data.triangles.map((t) => {
+      const p1 = data.vertices[t.v1Index].clone();
+      const p2 = data.vertices[t.v2Index].clone();
+      const p3 = data.vertices[t.v3Index].clone();
 
+      const tri = new Triangle(p1, p2, p3);
+      tri.addColor(t.color);
+      return tri;
+    });
+  }
   translate(v: Vector) {
     const translateMatrix = Matrix4.createTranslationMatrix4(v.x, v.y, v.z);
     this.transform = this.transform.multiply(translateMatrix);
@@ -61,50 +51,107 @@ export class CubeModel {
     let rotationMatrix: Matrix4 = Matrix4.identity();
     if (axis === "X")
       rotationMatrix = rotationMatrix.multiply(
-        Matrix4.createRotationXMatrix(theta)
+        Matrix4.createRotationXMatrix(theta),
       );
     else if (axis === "Y")
       rotationMatrix = rotationMatrix.multiply(
-        Matrix4.createRotationYMatrix(theta)
+        Matrix4.createRotationYMatrix(theta),
       );
     else if (axis === "Z")
       rotationMatrix = rotationMatrix.multiply(
-        Matrix4.createRotationZMatrix(theta)
+        Matrix4.createRotationZMatrix(theta),
       );
 
     this.transform = this.transform.multiply(rotationMatrix);
   }
   scale(sx: number, sy: number, sz: number) {
     this.transform = this.transform.multiply(
-      Matrix4.createScaleMatrix4(sx, sy, sz)
+      Matrix4.createScaleMatrix4(sx, sy, sz),
     );
   }
-  applyViewMatrix(view: Matrix4) {
-    this.transform = this.transform.multiply(view);
-  }
-  renderObject() {
-    const transformedAndProjected: Point[] = new Array(
-      this.verticesList.length
-    );
-    for (let i = 0; i < this.verticesList.length; i++) {
-      const transformedVertex = this.transform.multiplyPoint(
-        this.verticesList[i]
-      );
-      const projectedVertex = projectPoint(transformedVertex);
-      transformedAndProjected[i] = projectedVertex;
+  getBoundingSphere() {
+    if (this.triangles.length === 0) {
+      const pos = this.transform.extractPosition();
+      return { center: new Point(pos.x, pos.y, pos.z), radius: 0 };
     }
-    const trianglesList = this.trianglesData.map((t) => {
-      const p1 = transformedAndProjected[t.v1Index];
-      const p2 = transformedAndProjected[t.v2Index];
-      const p3 = transformedAndProjected[t.v3Index];
 
-      const tri = new Triangle(p1, p2, p3);
-      tri.addColor(t.color);
-      return tri;
-    });
+    const firstVert = this.triangles[0].v0;
+    let minX = firstVert.x;
+    let minY = firstVert.y;
+    let minZ = firstVert.z;
 
-    for (let t of trianglesList) {
-      this.triangleDrawer.drawWireframeTriangle(t);
+    let maxX = minX;
+    let maxY = minY;
+    let maxZ = minZ;
+
+    // iterate through all vertices for every triangle, find extremes
+    for (const tri of this.triangles) {
+      const vertices = [tri.v0, tri.v1, tri.v2];
+      for (const v of vertices) {
+        if (v.x < minX) minX = v.x;
+        if (v.y < minY) minY = v.y;
+        if (v.z < minZ) minZ = v.z;
+
+        if (v.x > maxX) maxX = v.x;
+        if (v.y > maxY) maxY = v.y;
+        if (v.z > maxZ) maxZ = v.z;
+      }
+    }
+
+    const localCenter = new Point(
+      (minX + maxX) / 2,
+      (minY + maxY) / 2,
+      (minZ + maxZ) / 2,
+    );
+
+    let maxDistSq = 0;
+    for (const tri of this.triangles) {
+      const vertices = [tri.v0, tri.v1, tri.v2];
+      for (const v of vertices) {
+        const distSq =
+          Math.pow(v.x - localCenter.x, 2) +
+          Math.pow(v.y - localCenter.y, 2) +
+          Math.pow(v.z - localCenter.z, 2);
+        if (distSq > maxDistSq) maxDistSq = distSq;
+      }
+    }
+
+    const localRadius = Math.sqrt(maxDistSq);
+
+    // To handle non-uniform scaling (sx, sy, sz), we find the max scale
+    const [scaleX, scaleY, scaleZ] = this.transform.extractScale();
+
+    const worldRadius = localRadius * Math.max(scaleX, scaleY, scaleZ);
+    const worldCenter = this.transform.multiplyPoint(localCenter);
+
+    return { center: worldCenter, radius: worldRadius };
+  }
+
+  deepClone() {
+    const clonedTriangles = this.triangles.map((tri) => tri.clone());
+    const clone = new CubeModel(this.canvas, clonedTriangles);
+
+    clone.transform = new Matrix4([...this.transform.m]);
+    return clone;
+  }
+  renderObject(viewMatrix: Matrix4) {
+    const modelViewMatrix = viewMatrix.multiply(this.transform);
+
+    for (let tri of this.triangles) {
+      // 1. Transform LOCAL points to VIEW space
+      const v0View = modelViewMatrix.multiplyPoint(tri.v0);
+      const v1View = modelViewMatrix.multiplyPoint(tri.v1);
+      const v2View = modelViewMatrix.multiplyPoint(tri.v2);
+
+      // 2. Projection
+      const p0 = projectPoint(v0View);
+      const p1 = projectPoint(v1View);
+      const p2 = projectPoint(v2View);
+
+      const projectedTri = new Triangle(p0, p1, p2);
+      projectedTri.addColor(tri.color);
+
+      this.triangleDrawer.drawWireframeTriangle(projectedTri);
     }
   }
 }

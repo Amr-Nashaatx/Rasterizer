@@ -3,7 +3,7 @@ import { Point } from "./point";
 import { Vector } from "./vector";
 
 export class Matrix4 {
-  private m: number[];
+  m: number[];
 
   constructor(values: number[]) {
     // Expects 16 elements in column-major order
@@ -140,6 +140,13 @@ export class Matrix4 {
     return new Vector(m[12], m[13], m[14]);
   }
 
+  extractScale() {
+    const scaleX = Math.sqrt(this.m[0] ** 2 + this.m[1] ** 2 + this.m[2] ** 2);
+    const scaleY = Math.sqrt(this.m[4] ** 2 + this.m[5] ** 2 + this.m[6] ** 2);
+    const scaleZ = Math.sqrt(this.m[8] ** 2 + this.m[9] ** 2 + this.m[10] ** 2);
+
+    return [scaleX, scaleY, scaleZ];
+  }
   static embedRotation3WithTranslation(matrix3: Matrix3, v: Vector) {
     return new Matrix4([
       matrix3.m[0],

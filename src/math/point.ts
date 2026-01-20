@@ -3,7 +3,11 @@ import { Vector } from "./vector.js";
 export class Point {
   public w: number;
   public h: number;
-  constructor(public x = 0, public y = 0, public z = 0) {
+  constructor(
+    public x = 0,
+    public y = 0,
+    public z = 0,
+  ) {
     this.x = x;
     this.y = y;
     this.z = z;
@@ -12,6 +16,12 @@ export class Point {
   }
   addVector(v: Vector) {
     return new Point(this.x + v.x, this.y + v.y, this.z + v.z);
+  }
+  clone() {
+    return new Point(this.x, this.y, this.z);
+  }
+  toVector() {
+    return new Vector(this.x, this.y, this.z);
   }
   getDisplacementVectorTo(p: Point) {
     return new Vector(p.x - this.x, p.y - this.y, p.z - this.z);

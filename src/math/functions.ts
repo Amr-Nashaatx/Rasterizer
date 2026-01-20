@@ -1,7 +1,6 @@
 import { VIEWPORT_DISTANCE } from "../constants";
-import type { Plane } from "./Plane";
+import { Plane } from "./Plane";
 import { Point } from "./point";
-import type { Triangle } from "./Triangle";
 import { Vector } from "./vector";
 
 export function interpolate(i0: number, d0: number, i1: number, d1: number) {
@@ -46,29 +45,18 @@ export function computeSignedDistance(p: Plane, vertex: Point) {
   return posVector.dot(normal) + p.D;
 }
 
-export function clipTriangle(tri: Triangle, plane: Plane) {
-  const signedDistances = [];
-  signedDistances.push(computeSignedDistance(plane, tri.v0));
-  signedDistances.push(computeSignedDistance(plane, tri.v1));
-  signedDistances.push(computeSignedDistance(plane, tri.v2));
+export function intersetEdgeWithPlane(edge: [Point, Point], plane: Plane) {
+  let A = new Vector(edge[0].x, edge[0].y, edge[0].z);
+  let B = new Vector(edge[1].x, edge[1].y, edge[1].z);
+  const D = plane.D;
 
-  const allNegative =
-    signedDistances[0] < 0 && signedDistances[1] < 0 && signedDistances[2] < 0;
-  const allPositive =
-    signedDistances[0] > 0 && signedDistances[1] > 0 && signedDistances[2] > 0;
+  // t = ( - D - N dot A ) / N dot (B - A)
+  const nDotA = plane.normal.dot(A);
+  const nDotAB = plane.normal.dot(B.subtract(A));
 
-  let posCount = 0;
-  let negCount = 0;
-  for (let d of signedDistances) {
-    if (d > 0) posCount++;
-    if (d < 0) negCount++;
-  }
-  const onlyOneIsPositive = posCount === 1 ? true : false;
-  const onlyOneIsNegative = negCount === 1 ? true : false;
+  const t = (-D - nDotA) / nDotAB;
 
-  if (allPositive) return [tri];
-  else if (allNegative) return [];
-  else if (onlyOneIsPositive) {
-  } else if (onlyOneIsNegative) {
-  }
+  // point of intersection Q = A + t(B - A)
+  const Q = A.add(B.subtract(A).scale(t));
+  return Q.toPoint();
 }
