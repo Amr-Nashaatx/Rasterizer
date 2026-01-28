@@ -3,6 +3,50 @@ import { Plane } from "./Plane";
 import { Point } from "./point";
 import { Vector } from "./vector";
 
+type NumberKeys<T> = {
+  [K in keyof T]: T[K] extends number ? K : never;
+}[keyof T];
+export function linearInterpolate(
+  P0: Point,
+  P1: Point,
+  P2: Point,
+  attr: NumberKeys<Point>,
+): {
+  right: number[];
+  left: number[];
+} {
+  let p0 = P0.clone();
+  let p1 = P1.clone();
+  let p2 = P2.clone();
+
+  // order the points according to y value ascending
+  [p0, p1, p2] = sortByY(p0, p1, p2);
+  // compute the all attr vlaues of the tall side,
+  // and the short sides for each y value.
+  // note: y is the independent variable here
+
+  const attr01 = interpolate(p0.y, p0[attr], p1.y, p1[attr]);
+  const attr12 = interpolate(p1.y, p1[attr], p2.y, p2[attr]);
+  const attr02 = interpolate(p0.y, p0[attr], p2.y, p2[attr]);
+
+  attr01.pop();
+  const attr012 = [...attr01, ...attr12];
+
+  // determine which is left and which is right
+  const middle = p1.y - p0.y;
+  let right: number[] = [];
+  let left: number[] = [];
+
+  if (attr02[middle] < attr012[middle]) {
+    left = attr02;
+    right = attr012;
+  } else {
+    left = attr012;
+    right = attr02;
+  }
+
+  return { right, left };
+}
 export function interpolate(i0: number, d0: number, i1: number, d1: number) {
   if (i0 === i1) return [d0];
   const values = [];
@@ -15,19 +59,15 @@ export function interpolate(i0: number, d0: number, i1: number, d1: number) {
   return values;
 }
 
-export function swapPoints(P0: Point, P1: Point) {
-  let temp = new Point(0, 0, 0);
-  temp.x = P0.x;
-  temp.y = P0.y;
-  temp.z = P0.z;
-
-  P0.x = P1.x;
-  P0.y = P1.y;
-  P0.z = P1.z;
-
-  P1.x = temp.x;
-  P1.y = temp.y;
-  P1.z = temp.z;
+export function sortByY(
+  p0: Point,
+  p1: Point,
+  p2: Point,
+): [Point, Point, Point] {
+  if (p1.y < p0.y) [p0, p1] = [p1, p0];
+  if (p2.y < p0.y) [p0, p2] = [p2, p0];
+  if (p2.y < p1.y) [p1, p2] = [p2, p1];
+  return [p0, p1, p2];
 }
 
 export function projectPoint(point: Point) {
