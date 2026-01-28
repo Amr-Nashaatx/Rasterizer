@@ -57,7 +57,7 @@ export class TriangleDrawer {
 
       if (xl === undefined || xr === undefined) continue;
       const xStart = Math.ceil(xl);
-      const xEnd = Math.floor(xr);
+      const xEnd = Math.ceil(xr);
 
       let hr: number,
         hl: number,

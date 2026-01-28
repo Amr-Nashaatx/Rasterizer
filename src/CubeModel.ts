@@ -138,12 +138,24 @@ export class CubeModel {
     const modelViewMatrix = viewMatrix.multiply(this.transform);
 
     for (let tri of this.triangles) {
-      // 1. Transform LOCAL points to VIEW space
-      const v0View = modelViewMatrix.multiplyPoint(tri.v0);
-      const v1View = modelViewMatrix.multiplyPoint(tri.v1);
-      const v2View = modelViewMatrix.multiplyPoint(tri.v2);
+      //  Transform LOCAL points to VIEW space
+      const v0View = modelViewMatrix.multiplyPoint(tri.v0); // A
+      const v1View = modelViewMatrix.multiplyPoint(tri.v1); // B
+      const v2View = modelViewMatrix.multiplyPoint(tri.v2); // C
 
-      // 2. Projection
+      // Backface culling
+      const v1 = v1View.toVector().subtract(v0View.toVector()); // B - A vector
+      const v2 = v2View.toVector().subtract(v0View.toVector()); // C - A vector
+
+      const N = v1.cross(v2);
+      const V = v0View.toVector(); // View Space: Camera is at (0,0,0)
+
+      const NdotV = N.dot(V);
+      if (NdotV <= 0) {
+        continue;
+      }
+
+      //  Projection
       const p0 = projectPoint(v0View);
       const p1 = projectPoint(v1View);
       const p2 = projectPoint(v2View);

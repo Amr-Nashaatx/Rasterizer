@@ -1,4 +1,3 @@
-import { Vector } from "./math/vector";
 import { CubeModel } from "./CubeModel";
 import { Scene } from "./Scene";
 import { Canvas } from "./canvas";
