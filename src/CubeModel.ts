@@ -151,7 +151,7 @@ export class CubeModel {
       const projectedTri = new Triangle(p0, p1, p2);
       projectedTri.addColor(tri.color);
 
-      this.triangleDrawer.drawWireframeTriangle(projectedTri);
+      this.triangleDrawer.drawFilledTriangle(projectedTri, false);
     }
   }
 }
